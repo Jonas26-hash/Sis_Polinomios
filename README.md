@@ -1,6 +1,6 @@
 # NUMÉRICA — Raíces de Polinomios
 
-Aplicación educativa y profesional de la **Sesión 4 de Métodos Numéricos**. Analiza la estabilidad de un filtro IIR a partir de las raíces del polinomio característico:
+Aplicación educativa y profesional de la **Sesión 4 de Métodos Numéricos**. Analiza la estabilidad de un filtro IIR a partir de las raíces del polinomio característico. La versión principal usa **FastAPI + HTML/CSS/JavaScript** para ser compatible con Vercel; la interfaz Streamlit original se conserva para ejecución local.
 
 \[
 D(z)=8z^4-6z^3-3z^2+3z-1.
@@ -8,7 +8,17 @@ D(z)=8z^4-6z^3-3z^2+3z-1.
 
 El recorrido incluye el criterio de Descartes, la Cota Global de Lagrange, el método de Müller, Horner y deflación sucesiva, verificación por sustitución y análisis del círculo unitario.
 
-## Instalación
+## Despliegue en Vercel
+
+El repositorio está listo para importarse directamente en Vercel:
+
+1. Importar el repositorio de GitHub.
+2. Mantener `Framework Preset` en detección automática y dejar vacíos `Build Command` y `Output Directory`.
+3. Desplegar. Vercel detectará la instancia FastAPI `app` exportada por `app.py`.
+
+La página estática se encuentra en `public/` y el cálculo se realiza en `POST /api/analyze`. El endpoint `GET /api/health` permite verificar el servicio.
+
+## Ejecución local compatible con Vercel
 
 Requiere Python 3.11 o posterior.
 
@@ -16,7 +26,16 @@ Requiere Python 3.11 o posterior.
 python -m venv .venv
 .venv\Scripts\activate
 pip install -r requirements.txt
-streamlit run app.py
+uvicorn app:app --reload
+```
+
+Visitar `http://127.0.0.1:8000`.
+
+## Interfaz Streamlit alternativa
+
+```powershell
+pip install -r requirements-streamlit.txt
+streamlit run streamlit_app.py
 ```
 
 ## Fundamento
@@ -32,6 +51,7 @@ Las raíces **no se obtienen mediante `numpy.roots` ni solucionadores externos**
 ## Pruebas
 
 ```powershell
+pip install -r requirements-dev.txt
 pytest -q
 ```
 

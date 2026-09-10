@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Laboratorio de raíces de polinomios con el método de Müller y análisis de estabilidad IIR.">
+  <title>NUMÉRICA — Raíces de Polinomios</title>
+  <link rel="stylesheet" href="/app.css">
+  <script src="https://cdn.plot.ly/plotly-3.1.0.min.js" charset="utf-8"></script>
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar">
+      <div class="brand">NUMÉRICA</div>
+      <div class="brand-sub">LABORATORIO DE INGENIERÍA</div>
+      <div class="side-rule"></div>
+      <p class="eyebrow light">POLINOMIO</p>
+      <div class="side-formula">8z⁴ − 6z³ − 3z² + 3z − 1</div>
+      <p class="eyebrow light space-top">PUNTOS INICIALES</p>
+      <div class="guide-note">Valores indicados por la actividad: <strong>0, 0.5 y 1.0</strong></div>
+      <form id="controls">
+        <div class="input-grid">
+          <label>z₀<input id="z0" type="number" step="0.1" value="0"></label>
+          <label>z₁<input id="z1" type="number" step="0.1" value="0.5"></label>
+          <label>z₂<input id="z2" type="number" step="0.1" value="1"></label>
+        </div>
+        <label>Tolerancia<input id="tolerance" type="number" min="0.000000000001" max="0.1" step="0.00001" value="0.00001"></label>
+        <label>Máximo de iteraciones<input id="maxIterations" type="number" min="1" max="500" value="50"></label>
+        <label>Decimales visibles
+          <select id="decimals"><option>4</option><option selected>6</option><option>8</option><option>10</option></select>
+        </label>
+        <button id="run" class="primary" type="submit"><span>▶</span> Ejecutar análisis</button>
+      </form>
+      <div class="side-footer"><span class="status-dot"></span> Motor Python · FastAPI</div>
+    </aside>
+
+    <main>
+      <header class="hero">
+        <div><p class="eyebrow">MÉTODOS NUMÉRICOS · SESIÓN 4</p>
+          <h1>Raíces de <span>Polinomios</span></h1>
+          <p class="subtitle">Método de Müller · Deflación · Estabilidad de un filtro IIR</p></div>
+        <div class="hero-mark" aria-hidden="true">ƒ<span>(z)</span></div>
+      </header>
+
+      <section id="alert" class="alert hidden" role="alert"></section>
+      <section id="metrics" class="metrics skeleton-zone" aria-live="polite"></section>
+
+      <nav class="tabs" aria-label="Secciones del análisis">
+        <button class="tab active" data-tab="problem">📘 <span>Problema</span></button>
+        <button class="tab" data-tab="theory">📐 <span>Análisis teórico</span></button>
+        <button class="tab" data-tab="muller">🧮 <span>Müller</span></button>
+        <button class="tab" data-tab="iterations">📊 <span>Iteraciones</span></button>
+        <button class="tab" data-tab="deflation">🔻 <span>Deflación</span></button>
+        <button class="tab" data-tab="plane">⭕ <span>Plano Z</span></button>
+        <button class="tab" data-tab="interpretation">💡 <span>Interpretación</span></button>
+      </nav>
+
+      <section id="problem" class="panel active">
+        <div class="section-heading"><p class="eyebrow">PLANTEAMIENTO</p><h2>Estabilidad de un filtro digital IIR</h2></div>
+        <div class="problem-grid">
+          <article class="card accent-card"><span class="card-number">01</span><h3>Polinomio característico</h3>
+            <div class="math-display">D(z) = 8z⁴ − 6z³ − 3z² + 3z − 1 = 0</div>
+            <p>Las raíces de este denominador representan los polos del sistema.</p></article>
+          <article class="card"><span class="card-number">02</span><h3>Criterio de estabilidad</h3>
+            <div class="math-display compact">|zᵢ| &lt; 1 &nbsp; para todo i</div>
+            <p>Todos los polos deben estar estrictamente dentro del círculo unitario.</p></article>
+        </div>
+        <div class="callout warning"><strong>Condición decisiva</strong><span>Una sola raíz sobre o fuera del círculo unitario implica inestabilidad.</span></div>
+      </section>
+
+      <section id="theory" class="panel"><div class="section-heading"><p class="eyebrow">PARTE 1</p><h2>Delimitación teórica</h2></div><div id="theoryContent"></div></section>
+      <section id="muller" class="panel"><div class="section-heading"><p class="eyebrow">PARTE 2</p><h2>Método de Müller desde cero</h2></div><div class="formula-strip">h₀=x₁−x₀ · h₁=x₂−x₁ · Δx=−2c/(b±√(b²−4ac))</div><p class="muted">El algoritmo selecciona el denominador de mayor módulo para reducir cancelación numérica y usa aritmética compleja.</p><div id="mullerContent"></div></section>
+      <section id="iterations" class="panel"><div class="section-heading"><p class="eyebrow">CONVERGENCIA</p><h2>Tabla completa de iteraciones</h2></div><p class="muted">Ea = |(z nuevo − z anterior) / z nuevo| es adimensional; no está expresado como porcentaje.</p><div id="iterationTable"></div><div id="convergenceChart" class="chart"></div><button id="downloadIterations" class="secondary">⬇ Descargar iteraciones CSV</button></section>
+      <section id="deflation" class="panel"><div class="section-heading"><p class="eyebrow">PARTE 3</p><h2>Horner y deflación sucesiva</h2></div><div id="deflationContent"></div></section>
+      <section id="plane" class="panel"><div class="section-heading"><p class="eyebrow">PLANO COMPLEJO</p><h2>Raíces en el plano Z</h2></div><div id="zChart" class="chart tall"></div><div id="rootVerification"></div><button id="downloadRoots" class="secondary">⬇ Descargar raíces CSV</button></section>
+      <section id="interpretation" class="panel"><div class="section-heading"><p class="eyebrow">CONCLUSIÓN</p><h2>Análisis de ingeniería</h2></div><div id="interpretationContent"></div><button id="copySummary" class="secondary">📋 Copiar resumen</button><span id="copyStatus" class="copy-status"></span></section>
+
+      <footer>NUMÉRICA <span>·</span> Métodos Numéricos <span>·</span> Laboratorio de ingeniería</footer>
+    </main>
+  </div>
+  <script src="/app.js"></script>
+</body>
+</html>
